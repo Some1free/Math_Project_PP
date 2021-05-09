@@ -17,9 +17,7 @@ def read_config(file_name = "config.cfg")
     for line in lines:
         data = line.strip().replace(" ","").split(";")
         data.upper()
-
         print(data)
-
 
         if (len(data)==1 and not data[1]) #line==0
             try:
