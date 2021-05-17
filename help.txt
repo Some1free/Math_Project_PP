@@ -1,0 +1,8 @@
+trorlorlo
+to jest
+plik pomocy
+żeby dało się uruchomić program 
+-h lub --help pomoc
+-i lub --input nazwa pliku wejściowego
+-o lub --output nazwa pliku wyjściowego
+-c wyświetl obliczenia 
