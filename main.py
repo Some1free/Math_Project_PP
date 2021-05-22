@@ -1,6 +1,5 @@
 INPUT_FILE = "config.cfg"
 OUTPUT_FILE = "results.txt"
-SHOW_CALC = False
 HELP_TEXT = "help.txt"
 
 CFG_SEPARATOR_1 = "="
@@ -9,29 +8,29 @@ CFG_SEPARATOR_2 = ","
 CFG_TITLE_1 = "DL"
 CFG_TITLE_2 = "SILA"
 CFG_TITLE_3 = "MOMENT"
-CFG_TITLE_4 = "OB" #co z polskimi znakami i jeśli mam OBCIĄŻENIE _CIĄGŁE, OB CIAGŁE, OBCIĄŻENIE_C
+CFG_TITLE_4 = "OB"
 
 from getch import pause_exit
 import getopt, sysconfig, sys
+import json
 
-def help(help_file):
+def show_help(help_file):
     try:
         file = open(help_file)
         lines = file.readlines()
         for l in range(len(lines)):    
-            print( lines[l])
+            print(lines[l])
         ##pause_exit()
     except:
         print("No help file has been found")
         ##pause_exit()
 
 def read_config(file_name):  
+    dic = {}
+    status = False
     try:
         file = open(file_name)
-        lines = file.readlines()
-
-        dic = {}
-
+        lines = file.readlines()   
 
         for line in lines:
             line = line.upper()
@@ -42,13 +41,12 @@ def read_config(file_name):
             data = [float(x) for x in data]
 
             dic[name] = data
-            return dic
+            status = True
     except:
         print("Błąd wczytywania pliku", file_name)
-        #pause_exit()
 
-   
-
+    return dic, status
+ 
 def get_value_from_config(cfg, name):
     name = name.upper()
     results = []
@@ -89,71 +87,103 @@ def write_results_to_file(filename, ra, rb):
         f = open(filename, "w")
         lines = ["Reakcje\n Ra: ", str(ra), "\n Rb: ", str(rb)]
         f.writelines(lines)
+        f.close()
         print("Pomyślnie zapisano wyniki w pliku ", filename)
     except:
-        print("Wystąpił problem z zapisaniem pliku")
+        print("Wystąpił problem z zapisaniem pliku (wyniki)")
         #pause_exit()
 
-def calc(input, total_length, force_table, continuous_load_table, torque_table, sum1, sum2):
-    try:
-        f = open(filename, "a")
-        lines = ["input", input, "długość belki\n", str(total_length),"siły\n", force_table, "obciążenia\n", continuous_load_table,
-                "momenty\n", torque_table, "suma sił i obciążeń\n", str(sum1), "całkowity moment\n", str(sum2)]
-        f.writelines("\n", lines)
-        print("Pomyślnie zapisano wyniki w pliku ", filename)
-    except:
-        print("Wystąpił problem z zapisaniem pliku")
-        #pause_exit()   
-
 def command_menager(argv):
+    HELP_STATUS = False
+    SHOW_CALC = False
+    ERROR = False
     try:
         options, args = getopt.getopt(sys.argv[1:], "hi:o:c", ["help", "input=", "output="])
-
+        
         for opt, arg in options:
-            if opt in ('-h', '--help'):
+            if opt == "-c":
+                SHOW_CALC = True
+            elif opt in ('-h', '--help'):
                 global HELP_TEXT
                 help(HELP_TEXT)
-                # #pause_exit()
+                HELP_STATUS = True
+                #pause_exit()
             if opt in ('-o', '--output'):
                 global OUTPUT_FILE
                 OUTPUT_FILE = arg
             elif opt in ('-i', '--input'):
                 global INPUT_FILE
                 INPUT_FILE = arg
-            elif opt == '-c':
-                global SHOW_CALC
-                SHOW_CALC = True
-    except getopt.GetoptError:
+            
+    except getopt.GetoptError as err:
         print("Nie rozpoznano poprawnie arguemntów. Użyj -h aby uzyskać pomoc")
-        #pause_exit()
+        print(err)
+        ERROR = True
+    
+    return HELP_STATUS, SHOW_CALC, ERROR
 
-def main():
-    input = read_config(INPUT_FILE)
+def write_calc_to_file(filename, input, total_length, force_table, continuous_load_table, torque_table, sum1, sum2):
+    try:
+        file = open(filename, "a")
+        lines = ["\ninput\n", json.dumps(input),
+                "\ndlugosc belki\n", str(total_length),
+                "\nsily\n", json.dumps(force_table), 
+                "\nobciazenia\n", json.dumps(continuous_load_table),
+                "\nmomenty\n", json.dumps(torque_table),
+                "\nsuma sil i obciazen\n", str(sum1),
+                "\ncalkowity moment\n", str(sum2)]
+        file.writelines(lines)
     
-    total_length = get_value_from_config(input, CFG_TITLE_1)
-    force_table = get_value_from_config(input, CFG_TITLE_2)
-    continuous_load_table = get_value_from_config(input, CFG_TITLE_4) 
-    torque_table = get_value_from_config(input, CFG_TITLE_3)
-    
+        #file.write(json.dumps(input))
+        # file.write(str(input))
+        # file.write("długość belki\n", total_length)
+        # file.write("siły\n",force_table)
+        # file.write("obciążenia\n", continuous_load_table)
+        # file.write("momenty\n", torque_table)
+        # file.write("suma sił i obciążeń\n", sum1)
+        # file.write("całkowity moment\n", sum2)
+
+        file.close()
+        print("Pomyślnie zapisano obliczenia w pliku ", filename)
+    except:
+       print("Wystąpił problem z zapisaniem obliczeń")
+        
+def get_values(filename, title_1, title_2, title_3, title_4):
+    total_length = get_value_from_config(filename, title_1)
+    force_table = get_value_from_config(filename, title_2)
+    torque_table = get_value_from_config(filename, title_3)
+    continuous_load_table = get_value_from_config(filename, title_4) 
+
+    return total_length, force_table, continuous_load_table, torque_table
+
+def equations_1(total_length, force_table, continuous_load_table, torque_table):
     sum1 = total_y_force(force_table, continuous_load_table)
     sum2 = total_tourge(force_table,continuous_load_table,torque_table)
+    
+    return sum1, sum2
+
+def equations_final(sum1, sum2, total_length):
     rb = count_rb(sum2, total_length)
     ra = count_ra(sum1, rb)
 
-    write_results_to_file(OUTPUT_FILE, ra, rb)
-    if SHOW_CALC:
-        calc()
+    return ra, rb
+
+def main():
+    
+    hlp, calculations, err = command_menager(sys.argv[1:])
+    
+    if not err:
+        if hlp:
+            show_help(HELP_TEXT)
+        else:
+            input, load_complete = read_config(INPUT_FILE)
+            if load_complete:
+                total_length, force_table, continuous_load_table, torque_table = get_values(input, CFG_TITLE_1, CFG_TITLE_2, CFG_TITLE_3, CFG_TITLE_4)
+                sum1, sum2 = equations_1(total_length, force_table, continuous_load_table, torque_table)
+                ra, rb = equations_final(sum1, sum2, total_length)
+                write_results_to_file(OUTPUT_FILE, ra, rb)
+                if calculations:
+                    write_calc_to_file(OUTPUT_FILE, input, total_length, force_table, continuous_load_table, torque_table, sum1, sum2)
 
 if __name__ == "__main__":
    main()  
-
-# print("input \n", input)
-# print("długość belki\n", total_length)
-# print("siły\n",force_table)
-# print("obciążenia\n", continuous_load_table)
-# print("momenty\n", torque_table)
-# print("suma sił i obciążeń\n", sum1)
-# print("całkowity moment\n", sum2)
-
-
-

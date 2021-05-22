@@ -1,8 +1,23 @@
-trorlorlo
-to jest
-plik pomocy
-żeby dało się uruchomić program 
--h lub --help pomoc
--i lub --input nazwa pliku wejściowego
--o lub --output nazwa pliku wyjściowego
--c wyświetl obliczenia 
+PL 
+To jest program sluzacy do prostych obliczen reakcji podporowych w belce statycznie wyznaczalnej. 
+Skonfiguruj plik z danymi wejsciowymi, lub uzyj pliku "config.cfg".
+Domyslna nazwa pliku wyjciowego to "results.txt".
+Mozesz zmienic plik wejsciowy, plik wyjsciowy oraz zaządac pokazania obliczen. 
+Zrobisz to z uzyciem ponizszych przelaczikow: 
+
+-h lub --help aby wyswietlic pomoc
+-i lub --input aby zmienic nazwe pliku wejsciowego
+-o lub --output aby zmienic nazwe pliku wyjsciowego
+-c 		aby zapisac obliczenia 
+
+EN
+This is a program designed for simple calculations of bearing reactions in a statically determinate beam.
+Configure the input file, or use the "config.cfg" file.
+The default output file name is "results.txt".
+You can change the input file, the output file and request to show the calculation.
+You will do this using the arguments below:
+
+-h or --help to show help
+-i or --input to change the input file name
+-o or --output to change te output file name
+-c 		to save calculations
