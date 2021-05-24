@@ -3,6 +3,7 @@ To jest program sluzacy do prostych obliczen reakcji podporowych w belce statycz
 Skonfiguruj plik z danymi wejsciowymi, lub uzyj pliku "config.cfg".
 Domyslna nazwa pliku wyjciowego to "results.txt".
 Mozesz zmienic plik wejsciowy, plik wyjsciowy oraz zaządac pokazania obliczen. 
+!NIE UZYWAJ POLSKICH ZNAKOW!
 Zrobisz to z uzyciem ponizszych przelaczikow: 
 
 -h lub --help aby wyswietlic pomoc

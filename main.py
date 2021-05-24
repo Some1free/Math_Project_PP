@@ -25,8 +25,6 @@ def command_menager(argv):
             if opt == "-c":
                 SHOW_CALC = True
             elif opt in ('-h', '--help'):
-                global HELP_TEXT
-                help(HELP_TEXT)
                 HELP_STATUS = True
                 #pause_exit()
             if opt in ('-o', '--output'):
@@ -58,7 +56,7 @@ def read_config(file_name):
     dic = {}
     status = False
     try:
-        file = open(file_name)
+        file = open(file_name, encoding="utf-8")
         lines = file.readlines()   
 
         for line in lines:
@@ -148,21 +146,17 @@ def count_rb(torque, length):
 def count_ra(y_force, Rb):
     return y_force - Rb 
        
-def equations_1(total_length, force_table, continuous_load_table, torque_table):
+def calculations(total_length, force_table, continuous_load_table, torque_table):
     sum1 = total_y_force(force_table, continuous_load_table)
     sum2 = total_tourge(force_table,continuous_load_table,torque_table)
-    
-    return sum1, sum2
-
-def equations_final(sum1, sum2, total_length):
     rb = count_rb(sum2, total_length)
     ra = count_ra(sum1, rb)
 
-    return ra, rb
+    return sum1, sum2, ra, rb
 
 def write_results_to_file(filename, ra, rb):
     try:
-        f = open(filename, "w")
+        f = open(filename, "w", encoding="utf-8")
         lines = ["Reakcje\n Ra: ", str(ra), "\n Rb: ", str(rb)]
         f.writelines(lines)
         f.close()
@@ -187,7 +181,7 @@ def write_calc_to_file(filename, input, total_length, force_table, continuous_lo
     except:
        print("Wystąpił problem z zapisaniem obliczeń")
 
-def program(hlp, calculations, err):
+def program(hlp, is_calc, err):
     if not err:
         if hlp:
             show_help(HELP_TEXT)
@@ -198,17 +192,17 @@ def program(hlp, calculations, err):
                 is_good = check_values(total_length, force_table, continuous_load_table, torque_table)
 
                 if is_good:
-                    sum1, sum2 = equations_1(total_length, force_table, continuous_load_table, torque_table)
-                    ra, rb = equations_final(sum1, sum2, total_length)
+                    sum1, sum2, ra, rb = calculations(total_length, force_table, continuous_load_table, torque_table)
                     write_results_to_file(OUTPUT_FILE, ra, rb)
-                    if calculations:
+                    if is_calc:
                         write_calc_to_file(OUTPUT_FILE, input, total_length, force_table, continuous_load_table, torque_table, sum1, sum2)
                 else:
                     print("Blad podanych wartosci / za malo danych")
 
 def main():
-    hlp, calculations, err = command_menager(sys.argv[1:])
-    program(hlp, calculations, err)
+    hlp, is_calc, err = command_menager(sys.argv[1:])
+    program(hlp, is_calc, err)
 
 if __name__ == "__main__":
    main()  
+    

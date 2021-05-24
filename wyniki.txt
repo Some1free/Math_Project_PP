@@ -1,0 +1,17 @@
+Reakcje
+ Ra: 4.0
+ Rb: 1.0
+input
+{"DLUGOSC_BELKI": [2.0], "SILA1": [2.0, 0.5], "SILA2": [3.0, 1.0], "MOMENT": [2.0, 0.0], "OCIAZENIE_CIAGLE": [3.0, 0.5, 1.0, 4.0]}
+dlugosc belki
+[[2.0]]
+sily
+[[2.0, 0.5], [3.0, 1.0]]
+obciazenia
+[]
+momenty
+[[2.0, 0.0]]
+suma sil i obciazen
+5.0
+calkowity moment
+2.0
